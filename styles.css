@@ -1,0 +1,63 @@
+label {
+    display: block;
+}
+
+input[type=checkbox]:checked ~ label{
+    text-decoration: line-through;
+}
+
+input, button {
+    outline: none;
+
+}
+progress {
+    width: 250px;
+    height: 50px;
+    position: relative;
+}
+progress::after {
+    content: attr(data-el);
+    position: absolute;
+    display: block;
+    top: 30%;
+    left: 50%;
+    transform: translateX(-50%);
+}
+#root {
+    width: 800px;
+    margin: 0 auto; 
+    text-align: center;
+}
+
+.todoItem {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 20px 0;
+}
+.todoItem label {
+    font-size: 2em;
+}
+.formTodo {
+    display: flex;
+    justify-content: center;
+}
+.formTodo  button {
+    width: 50px;
+    margin-left: 10px;
+    color: white;
+    background-color: rgb(154, 154, 255);
+    
+}
+.mainInput {
+    width: 70%;
+    height: 50px;
+    font-size: 1.4em;
+}
+.botom {
+    display: flex;
+    justify-content: space-between;
+}
+#text {
+    font-size: 2em;
+}
