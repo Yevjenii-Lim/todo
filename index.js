@@ -1,3 +1,4 @@
+
 const root = document.querySelector('#root')
 
 
@@ -43,40 +44,48 @@ root.append(botomPart)
 
 
 //счетчик для отмечания уже сделаныч todo
-let countDone = 0;
+let countDone = [];
 
 // функция отображает все что есть в localStorage
 // и вешает события на кнопки с localStorage
 function showTasks() {
+    if(localStorage.hasOwnProperty('loglevel')) {
+        localStorage.removeItem(loglevel)
+    }
     if(localStorage.length > 0) {
         for(let i = localStorage.length - 1; i >= 0; i--) {
 
             let c = localStorage.key(i)
             let todoItem = localStorage[c]
-            let div = document.createElement('div')
-            div.innerHTML = todoItem
-            container.append(div)
-        }
-        if(edit.length == undefined) {
-            edit.setAttribute('value', true)
-            let id = edit.parentElement.previousElementSibling.previousElementSibling.id
-            edit.addEventListener('click', () => { editItem.bind(edit)(id) })
-        }else {
-            for(let i of edit) {
-         
-                i.setAttribute('value', true)
-                let id = i.parentElement.previousElementSibling.previousElementSibling.id
-                i.addEventListener('click', () => { editItem.bind(i)(id) })
+            if(todoItem != 'INFO') {
+                let div = document.createElement('div')
+                div.innerHTML = todoItem
+                container.append(div)
             }
         }
-        if(remove.length == undefined) {
-            let id = remove.parentElement.previousElementSibling.previousElementSibling.id
-         
-            remove.addEventListener('click', () => removeTodo(event,id))
-        }else {
-            for(let i of remove) {
-                let id = i.parentElement.previousElementSibling.previousElementSibling.id
-                i.addEventListener('click', () => removeTodo(event,id))
+
+        if(edit != undefined) {
+            if(edit.length == undefined) {
+                edit.setAttribute('value', true)
+                let id = edit.parentElement.previousElementSibling.previousElementSibling.id
+                edit.addEventListener('click', () => { editItem.bind(edit)(id) })
+            }else {
+                for(let i of edit) {
+             
+                    i.setAttribute('value', true)
+                    let id = i.parentElement.previousElementSibling.previousElementSibling.id
+                    i.addEventListener('click', () => { editItem.bind(i)(id) })
+                }
+            }
+            if(remove.length == undefined) {
+                let id = remove.parentElement.previousElementSibling.previousElementSibling.id
+             
+                remove.addEventListener('click', () => removeTodo(event,id))
+            }else {
+                for(let i of remove) {
+                    let id = i.parentElement.previousElementSibling.previousElementSibling.id
+                    i.addEventListener('click', () => removeTodo(event,id))
+                }
             }
         }
  
@@ -125,9 +134,10 @@ function addTodo() {
 
         container.append(todoItem);
         input.value = '';
+        progressBar.value = countDone.length;
         progressBar.max = document.querySelectorAll('.todoItem').length;
  
-        progressBar.dataset.el = `${countDone} of ${progressBar.max} tasks done`;
+        progressBar.dataset.el = `${countDone.length} of ${progressBar.max} tasks done`;
 
         localStorage.setItem(check.id, todoItem.outerHTML)
 
@@ -173,8 +183,9 @@ function editItem(counter) {
 // удаляет todo
 function removeFromAddTodo(event,id) {
     console.log(event.target)
+    progressBar.value = countDone.length;
     progressBar.max = document.querySelectorAll('.todoItem').length - 1;
-    progressBar.dataset.el = `${countDone} of ${progressBar.max} tasks done`
+    progressBar.dataset.el = `${countDone.length} of ${progressBar.max} tasks done`
     localStorage.removeItem(id)
     event.target.parentElement.parentElement.remove()
 }
@@ -182,8 +193,10 @@ function removeFromAddTodo(event,id) {
 // функция на уже существующие todo подгруженые с localStorage
 // удаляет todo
 function removeTodo(event, id) {
+    countDone.pop()
+    progressBar.value = countDone.length;
     progressBar.max = document.querySelectorAll('.todoItem').length - 1;
-    progressBar.dataset.el = `${countDone} of ${progressBar.max} tasks done`
+    progressBar.dataset.el = `${countDone.length} of ${progressBar.max} tasks done`
     localStorage.removeItem(id)
     event.target.parentElement.parentElement.remove()
   
@@ -207,15 +220,37 @@ function removeAllCheked() {
  //обновляет прогрес бар при нажатии на checkbox
 function addDone(event) {
     if(event.target.checked) {
-       progressBar.value += 1
-       countDone++;
-       progressBar.dataset.el = `${countDone} of ${progressBar.max} tasks done`
+        countDone.push(1)
+     
+        event.target.nextElementSibling.style.textDecoration = "line-through"
+        event.target.dataset.done = false;
+        localStorage.setItem(event.target.id, event.target.parentElement.outerHTML)
+        progressBar.value = countDone.length;
+       progressBar.dataset.el = `${countDone.length} of ${progressBar.max} tasks done`
     }else {
-        progressBar.value -= 1;
-        countDone -= 1;
-        progressBar.dataset.el = `${countDone} of ${progressBar.max} tasks done`
+        countDone.pop()
+        event.target.nextElementSibling.style.textDecoration = 'none'
+        progressBar.value = countDone.length;
+        event.target.dataset.done = true;
+        localStorage.setItem(event.target.id, event.target.parentElement.outerHTML)
+     
+        progressBar.dataset.el = `${countDone.length} of ${progressBar.max} tasks done`
     }
    
+}
+let allTodoItems = document.querySelectorAll('.todoItem')
+
+for(let i of allTodoItems) {
+
+    if(i.firstChild.dataset.done == 'false') {
+        // console.log(i.firstChild)
+        i.firstChild.checked = true;
+        i.firstChild.nextElementSibling.style.textDecoration = 'line-through'
+        countDone.push(1)
+    }else {
+        i.firstChild.checked = false
+    }
+ 
 }
 
 // события длч todo c localStorage обновление прогресс бара
@@ -224,6 +259,5 @@ for(let i of allDone) {
     i.addEventListener('click', addDone)
 }
 
-
 progressBar.max = document.querySelectorAll('.todoItem').length;
-progressBar.dataset.el = `${countDone} of ${progressBar.max} tasks done`;
+progressBar.dataset.el = `${countDone.length} of ${progressBar.max} tasks done`;

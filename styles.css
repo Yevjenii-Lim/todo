@@ -2,9 +2,9 @@ label {
     display: block;
 }
 
-input[type=checkbox]:checked ~ label{
+/* input[type=checkbox]:checked ~ label{
     text-decoration: line-through;
-}
+} */
 
 input, button {
     outline: none;
